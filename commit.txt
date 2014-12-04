@@ -1,0 +1,4 @@
++çekilen fotonun base64 çevrimi
++login,dropdown menu ve indexdot ekran tasarým ve iþlemleri yapýldý.Tasarýma biraz daha bakýlabilir
+to do
+-sayfalar arasý iletiþim

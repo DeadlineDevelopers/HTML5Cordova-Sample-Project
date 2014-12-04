@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+        
+      <title>Planter Tracker Information</title>
+        <meta charset="utf-8" /><meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        
+        <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
+        <link rel="stylesheet" type="text/css" href="css/dotstyle.css" media="all" />
+        
+        
+        <script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+        <script src="https://raw.github.com/imaya/base64.js/master/bin/base64.min.js"></script>
+        
+        <link rel="stylesheet" href="js/libs/jquery-mobile/jquery.mobile.min.css"/>
+        <script type="text/javascript" src="js/libs/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-mobile/jquery.mobile.min.js"></script>
+        
+        <title>Geo Location</title>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        
+        
+    <script type="text/javascript" charset="utf-8">
+        
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value 
+    var lat;
+    var lon;
+    var base64;
+    var images=[]; //array of images
+    var imageCounter=0; //image counter
+    //alert("image counter: "+imageCounter);
+    // 
+    // Wait for PhoneGap to connect with the device
+    //
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // PhoneGap is ready to be used!
+    //
+    
+    function onDeviceReady() {
+       
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+        var db = window.sqlitePlugin.openDatabase({
+            name : "OZEGE",
+            bgType : 1 
+        });
+        
+        db.transaction(function(tx)
+        {
+            
+            //tx.executeSql('DROP TABLE IF EXISTS TBL_C_EKICI_TAKIP_BILGISI');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS TBL_C_EKICI_TAKIP_BILGISI (id INTEGER PRIMARY KEY,EKSPER_ID integer,EKICI_ID text,DONEM_ID integer,KONUM_X text, KONUM_Y text,ACIKLAMA text)');          
+            
+            //tx.executeSql('DROP TABLE IF EXISTS TBL_C_RESIM');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS TBL_C_RESIM (id INTEGER PRIMARY KEY,RESIM blob,GONDERI_ID integer,FOREIGN KEY(GONDERI_ID) REFERENCES TBL_C_EKICI_TAKIP_BILGISI(id))');
+            
+    });
+        
+       
+        /*db.transaction(function(tx) 
+        {
+          tx.executeSql('DROP TABLE IF EXISTS test_table');
+          tx.executeSql('CREATE TABLE IF NOT EXISTS android_device (id integer primary key,isim text, yas integer)');
+
+          tx.executeSql("INSERT INTO android_device (isim, yas) VALUES (?,?)", ["onur", 22], function(tx, res) 
+            {
+		alert("eklenen Id: " + res.insertId + " -- 1 olmalı"); // check #18/#38 is fixed
+                alert("eklenen Id: " + res.insertId + " -- should be valid");				
+
+          }, function(e) {
+            console.log("HATA: " + e.message);
+          });
+          
+          tx.executeSql("INSERT INTO android_device (isim, yas) VALUES (?,?)", ["furkan", 24], function(tx, res) 
+            {
+		alert("eklenen Id: " + res.insertId + " -- 2 olmalı"); // check #18/#38 is fixed
+                alert("eklenen Id: " + res.insertId + " -- should be valid");				
+
+          }, function(e) {
+            console.log("HATA: " + e.message);
+          });
+          
+		  
+        });
+		
+		
+	db.transaction(function(tx)
+	{
+            tx.executeSql("SELECT yas from android_device;", [], function(tx, res) 
+            {
+		alert("satır sayısı " + res.rows.length + " -- 2 olmalı");
+		alert("ilk değer için 'yaş': " + res.rows.item(0).yas + " -- 22 olmalı");
+                alert("ikinci değer için 'yaş': " + res.rows.item(1).yas + " -- 24 olmalı");
+            }, function(e) {
+		console.log("HATA: " + e.message);
+		});
+           
+	});*/    
+    }
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoURISuccess(imageData) {
+      // Uncomment to view the image file URI 
+       console.log(imageData);
+       alert(imageData);
+       // Uncomment to view the base64 encoded image data
+        
+        //alert("image counter1: "+imageCounter);
+        images[imageCounter] = imageData ;
+        //images[imageCounter]=imageData;
+        imageCounter = imageCounter + 1;
+        
+        //alert("image counter2: "+imageCounter);
+        //console.log("IMAGE COUNTER: "+imageCounter);
+        console.log(imageData);
+        //base64 = imageData;
+        //console.log(base64);
+        //byteArray = native(imageData);                
+        //alert(base64);
+                                
+        // Get image handle
+        //
+        
+        var newImg=document.createElement("img");
+        //newImg.setAttribute('src', 'data:image/jpeg;base64,' + imageData);
+        //newImg.src=imageURI;
+        newImg.src='data:image/jpeg;base64,' + imageData;
+        newImg.setAttribute('alt', 'eklenen foto');
+        //newImg.style.width= '120px';
+        newImg.style.height= '150px';
+        newImg.style.border='1px solid black';
+        newImg.style.float='left';
+        newImg.style.margin='5px';
+        var imgList = document.getElementById('myList');
+        imgList.appendChild(newImg);
+                
+    }
+
+    // A button will call this function
+    //
+    /*function capturePhoto() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+            destinationType : Camera.DestinationType.FILE_URI,
+            saveToPhotoAlbum : true    
+    });
+    }*/
+    function getPhoto(source) {
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
+        
+        destinationType: destinationType.DATA_URL,  
+        //destinationType: destinationType.FILE_URI,
+        sourceType: source });
+    }
+    
+    function capturePhoto() {
+        //sessionStorage.removeItem('imagepath');
+    // Take picture using device camera and retrieve image as base64-encoded string
+        navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+            
+            //ekranda listelemek için kullanılan kod satırları
+            destinationType : Camera.DestinationType.FILE_URI,
+            //destinationType : Camera.DestinationType.DATA_URL,
+            correctOrientation : true,
+            saveToPhotoAlbum : true,
+            encodingType: Camera.EncodingType.JPEG
+            //kaydetmek için kullanılan kod satırları
+            //destinationType : Camera.DestinationType.FILE_URI,
+            //saveToPhotoAlbum : true
+            
+            
+        
+        });
+    }
+ 
+    function onPhotoDataSuccess(imageURI) { 
+        // Uncomment to view the base64 encoded image data
+        
+        //alert("image counter1: "+imageCounter);
+        //images[imageCounter] = imageData ;
+        //images[imageCounter]=imageData;
+        //imageCounter = imageCounter + 1;
+        
+        //alert("image counter2: "+imageCounter);
+        //console.log("IMAGE COUNTER: "+imageCounter);
+        //console.log(imageData);
+        //base64 = imageData;
+        //console.log(base64);
+        //byteArray = native(imageData);                
+        //alert(base64);                                      
+        var newImg=document.createElement("img");
+        //newImg.setAttribute('src', 'data:image/jpeg;base64,' + imageData);
+        newImg.src=imageURI;
+        
+        //newImg.src='data:image/jpeg;base64,' + imageData;
+        newImg.setAttribute('alt', 'eklenen foto');
+        //newImg.style.width= '120px';
+        newImg.style.height= '150px';
+        newImg.style.border='1px solid black';
+        newImg.style.float='left';
+        newImg.style.margin='5px';
+        var imgList = document.getElementById('myList');
+        imgList.appendChild(newImg);
+        
+        
+        
+        
+        
+        /*var imgProfile = document.getElementById('imgProfile');
+ 
+        // Show the captured photo
+        // The inline CSS rules are used to resize the image
+        //
+        imgProfile.src = imageURI;
+        //resmin kadı için kullanılan kod satırları*/
+        if(sessionStorage.isprofileimage===1){
+            getLocation();
+        }
+        movePic(imageURI);
+        get_image_size_from_URI(imageURI);
+        
+    }
+    
+    function get_image_size_from_URI(imageURI) {
+    // This function is called once an imageURI is rerturned from PhoneGap's camera or gallery function
+        window.resolveLocalFileSystemURI(imageURI, function(fileEntry) {
+            fileEntry.file(function(fileObject){
+                // Create a reader to read the file
+                var reader = new FileReader();
+
+                // Create a function to process the file once it's read
+                reader.onloadend = function(evt) {
+                    // Create an image element that we will load the data into
+                    var image = new Image();
+                    image.onload = function(evt) {
+                        // The image has been loaded and the data is ready
+                        var image_width = this.width;
+                        var image_height = this.height;
+                        //console.log("IMAGE HEIGHT: " + image_height);
+                        //console.log("IMAGE WIDTH: " + image_width);
+                        alert("IMAGE HEIGHT: " + image_height);
+                        alert("IMAGE WIDTH: " + image_width);
+                        // We don't need the image element anymore. Get rid of it.
+                        image = null;
+                    };
+                    // Load the read data into the image source. It's base64 data
+                    //image.src = evt.target.result;
+                    //console.log(evt.target.result);
+                    //alert(evt.target.result);
+                    var b64data = evt.target.result;
+                    //alert("replace öncesi ---"+b64data);                    
+                    b64data = b64data.replace('data:image/jpeg;base64,','');
+                    //alert("replace sonrası ---"+b64data);
+                    /*var newImg=document.createElement("img");
+        //newImg.setAttribute('src', 'data:image/jpeg;base64,' + imageData);
+        //newImg.src=imageURI;
+        
+        newImg.src = 'data:image/jpeg;base64,' + b64data;
+        newImg.setAttribute('alt', 'eklenen foto');
+        //newImg.style.width= '120px';
+        newImg.style.height= '150px';
+        newImg.style.border='1px solid black';
+        newImg.style.float='left';
+        newImg.style.margin='5px';
+        var imgList = document.getElementById('myList');
+        imgList.appendChild(newImg);*/
+        
+                    images[imageCounter] = b64data ;
+                    //images[imageCounter]=imageData;
+                    imageCounter = imageCounter + 1;
+                };
+                // Read from disk the data as base64
+                reader.readAsDataURL(fileObject);
+            }, function(){
+                console.log("There was an error reading or processing this file.");
+            });
+        });
+    }
+
+    // Called if something bad happens.
+    // 
+    function onFail(message) {
+        alert('Hata Oluştu: ' + message);
+    }
+ 
+    function movePic(file){ 
+        window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError);  
+        
+    } 
+ 
+    //Callback function when the file system uri has been resolved
+    function resolveOnSuccess(entry){ 
+    var d = new Date();
+    var n = d.getTime();
+    //new file name
+    var newFileName = n + ".jpg";
+    var myFolderApp = "Oz-Ege";
+ 
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) 
+    {      
+    //The folder is created if doesn't exist
+    fileSys.root.getDirectory( 
+            myFolderApp,
+            {create:true, exclusive: false},
+            function(directory) 
+                {
+                 entry.moveTo(directory, newFileName,  successMove, resOnError);
+                    
+                },
+                resOnError);
+    },
+    resOnError);
+    
+    
+    }
+ 
+    //Callback function when the file has been moved successfully - inserting the complete  path
+    function successMove(entry) {
+    //Store imagepath in session for future use
+    // like to store it in database
+        sessionStorage.setItem('imagepath', entry.fullPath);
+        
+                    
+    }
+ 
+    function resOnError(error) {
+        alert("HATA! : Resim kaydetme esnasında bir hata oluştu."+error.code);
+    }
+
+    // A button will call this function
+    //
+    
+
+    // Called if something bad happens.
+    // 
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+    
+    
+
+    function saveInfos() {
+        
+        //ilklemeler kaldırılacak
+        var lattxt = 55;
+        var lontxt = 35;
+        var insertedId;
+        var pictureData;
+        
+        var db = window.sqlitePlugin.openDatabase({
+            name : "OZEGE",
+            bgType : 1 
+        });
+         navigator.geolocation.getCurrentPosition(function(position) {
+        
+             lat = position.coords.latitude; 
+             lon = position.coords.longitude; 
+             //alert("1--"+lat+","+lon);
+             
+            }, onError);
+         
+         //lattxt = lat.toString();
+         //lontxt = lon.toString();
+         //resimstr = base64.toString();
+         alert("text--"+lattxt+","+lontxt);
+         //salert("resim--"+resimstr);
+                   
+        var txt = document.getElementById("textarea").value;       
+        //alert(txt);
+       
+         db.transaction(function(tx)
+            {
+                tx.executeSql("INSERT INTO TBL_C_EKICI_TAKIP_BILGISI (EKSPER_ID, EKICI_ID, DONEM_ID , KONUM_X, KONUM_Y, ACIKLAMA) VALUES(?,?,?,?,?,?)", [1,1,1,lattxt,lontxt,txt]  , function(ty, res) 
+                {
+                    
+                    alert("eklenen Id: " + res.insertId + " -- 1 olmalı");                   
+                    alert("eklenen Id: " + res.insertId + " -- should be valid");
+                    insertedId = res.insertId;
+                    while(imageCounter>0){
+                        pictureData = images[imageCounter-1];
+                        ty.executeSql('INSERT INTO TBL_C_RESIM (RESIM,GONDERI_ID) VALUES(?,?)', [pictureData,insertedId], function(tz,res)
+                        {
+                           alert("eklenen Id: " + res.insertId + " -- 1 olmalı"); 
+                        }, function(e){
+                            console.log("HATA TBL_C_RESIM INSERT: " + e.message);
+                        });
+                        
+                        imageCounter = imageCounter - 1;
+                    }
+                        
+                            
+                    }, function(e) {
+                            console.log("HATA: " + e.message);
+                        });
+            });    
+                /*tx.executeSql("SELECT id,KONUM_X,KONUM_Y,RESIM,ACIKLAMA from TBL_C_EKICI_TAKIP_BILGISI;", [], function(tx, res) 
+                {
+                    alert("satır sayısı " + res.rows.length + " -- 1 olmalı");
+                    alert("id: " + res.rows.item(0).id + " 1 olmalı");
+                    alert("latitude: " + res.rows.item(0).KONUM_X + " -- olmalı");
+                    alert("longituted: " + res.rows.item(0).KONUM_Y + " -- olmalı");
+                    alert("resimsr: " + res.rows.item(0).RESIM + " -- olmalı");
+                    alert("açıklama: " + res.rows.item(0).ACIKLAMA + " -- olmalı");
+                }, function(e) {
+                    console.log("HATA: " + e.message);
+                    });*/
+            db.transaction(function(ta)
+            {        
+                ta.executeSql("SELECT * from TBL_C_RESIM;", [], function(tb, res) 
+                {
+                    alert("satır sayısı " + res.rows.length );
+                    //alert("id: " + res.rows.item(0).GONDERI_ID);
+                    /*alert("latitude: " + res.rows.item(0).KONUM_X + " -- olmalı");
+                    alert("longituted: " + res.rows.item(0).KONUM_Y + " -- olmalı");
+                    alert("resimsr: " + res.rows.item(0).RESIM + " -- olmalı");
+                    alert("açıklama: " + res.rows.item(0).ACIKLAMA + " -- olmalı");*/
+                }, function(e) {
+                    console.log("HATA: " + e.message);
+                    });
+            }); 
+            
+            
+          
+            /*db.transaction(function(tx) 
+            {
+              tx.executeSql('DROP TABLE IF EXISTS test_table');
+              tx.executeSql('CREATE TABLE IF NOT EXISTS android_device (id integer primary key,isim text, yas integer)');
+
+              tx.executeSql("INSERT INTO android_device (isim, yas) VALUES (?,?)", ["onur", 22], function(tx, res) 
+                {
+                    alert("eklenen Id: " + res.insertId + " -- 1 olmalı"); // check #18/#38 is fixed
+                    alert("eklenen Id: " + res.insertId + " -- should be valid");				
+
+              }, function(e) {
+                console.log("HATA: " + e.message);
+              });
+          
+          tx.executeSql("INSERT INTO android_device (isim, yas) VALUES (?,?)", ["furkan", 24], function(tx, res) 
+            {
+		alert("eklenen Id: " + res.insertId + " -- 2 olmalı"); // check #18/#38 is fixed
+                alert("eklenen Id: " + res.insertId + " -- should be valid");				
+
+          }, function(e) {
+            console.log("HATA: " + e.message);
+          });
+          
+		  
+        });*/
+        
+        
+    }
+    
+    /*function onSuccess(position) {
+        
+             lat = position.coords.latitude; 
+             lon = position.coords.longitude; 
+                            
+            }*/
+
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }
+    
+    </script>
+  </head>
+  
+  
+  <body>
+      <div class="wrap">
+          <header id="hdr">
+              <div class="logo">
+                  <a href="indexdot.html">
+                      <img src="images/öz-ege.png" alt="ÖZ-EGE LOGOSU"/>
+                      <span class="title"><span>ÖZ</span>-EGE</span>
+                  </a>
+                  <P>ÖZ-EGE TÜTÜN SANAYİ VE TİCARET A.Ş.</P>
+              </div>
+          </header>
+          
+          <div class="content">
+              
+              <!--login-->
+              <!--seçim-->
+              <!--ana ekran-->
+              <article>
+                  <section class="head">
+                      <h3>Ekici Takip Sistemi</h3>
+                  </section>
+                  
+                  <section>
+                      
+                      <div data-role="content" id="mapbuton">
+                            
+                            <h2 class="underline">Konum bilgisi</h2>                           
+                            <div id="map" class="mapCss" >
+                                <script>
+                                    $('#map').css({
+                                            'height': (($('#mapbuton').width()*3)/5) + 'px'
+                                        });
+                                        
+                                map();</script>
+                            </div><br><br>
+                     
+                      
+                            
+                            <h2 class="underline">Fotoğraf Ekle</h2>    
+                            <div id="buttonlar" style="text-align: center;">
+                                
+                                <div id="butonyarisi" style="display: inline-block;">
+                                    <script>
+                                     $('#butonyarisi').css({
+                                            'width': ($('#mapbuton').width()/2) + 'px'
+                                        });
+                                    </script>
+                                     <button onclick="capturePhoto();">Fotoğraf Çek</button>
+                                    <!--button onclick="capturePhotoEdit();">Capture Editable Photo</button-->
+                                    <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">Albümden Seç</button>
+                                    <!--button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Album</button--><br>
+                                </div>
+                            </div>
+                            
+                            
+                            <div id="myList" style="display:inline-block;width: 100%;" > 
+                                
+                            </div>
+                            
+                            <!--img style="display:none;width:150px;height:150px;" id="imgProfile" src="" />
+                            <img style="display:none;width:300px;height:300px;" id="largeImage" src="" /-->
+                            <br>
+                            <h2 class="underline">Açıklama</h2>
+                            <div>
+                                
+                                <textarea cols="40" rows="40" name="textarea" id="textarea"></textarea>
+                             </div>
+                
+                            <div id="kaydetyarisi" style="text-align: center; padding-bottom: 0;">
+                                <div id="kaydetbutonu" style="display: inline-block">
+                                    <script>
+                                         $('#kaydetbutonu').css({
+                                                'width': ($('#mapbuton').width()/2) + 'px'
+                                            });
+                                    </script>
+                                     <button onclick="saveInfos();">Kaydet</button>
+                                </div>
+                            </div>
+                            
+                            
+                     </div>
+                      
+                      
+                      
+                      
+                  </section>
+              </article>
+          </div>
+          
+          <footer> 
+            <p>- Copyright 2014</p>
+            <p>- Design by <a href="http://www.aurabilisim.com.tr">Aura Bilişim</a></p>
+          </footer>
+          
+      </div>
+            
+        <script type="text/javascript" src="js/geolocation.js"></script>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        
+        
+        <meta charset="utf-8" /><meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
+        
+        <script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+        
+        <link rel="stylesheet" href="js/libs/jquery-mobile/jquery.mobile.min.css"/>
+        <script type="text/javascript" src="js/libs/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-mobile/jquery.mobile.min.js"></script>
+        
+        <title>Geo Location</title>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        		
+        <script type="text/javascript" charset="utf-8">
+
+                var pictureSource;   // picture source
+                var destinationType; // sets the format of returned value 
+
+                // Wait for Cordova to connect with the device
+                //
+                document.addEventListener("deviceready",onDeviceReady,false);
+
+                // Cordova is ready to be used!
+                //
+                function onDeviceReady() {
+                    pictureSource=navigator.camera.PictureSourceType;
+                    destinationType=navigator.camera.DestinationType;
+                }
+
+                // Called when a photo is successfully retrieved
+                //
+                /*function onPhotoDataSuccess(imageData) {
+                  // Uncomment to view the base64 encoded image data
+                  // console.log(imageData);
+
+                  // Get image handle
+                  //
+                  var smallImage = document.getElementById('smallImage');
+
+                  // Unhide image elements
+                  //
+                  smallImage.style.display = 'block';
+
+                  // Show the captured photo
+                  // The inline CSS rules are used to resize the image
+                  //
+                  smallImage.src = "data:image/jpeg;base64," + imageData;
+                }*/
+
+                // Called when a photo is successfully retrieved
+                //
+                
+               
+               function onPhotoURISuccess(imageURI) {
+                    // Uncomment to view the image file URI 
+                    // console.log(imageURI);
+
+                    // Get image handle
+                    //
+                    var largeImage = document.getElementById('largeImage');
+
+                    // Unhide image elements
+                    //
+                    largeImage.style.display = 'block';
+
+                    // Show the captured photo
+                    // The inline CSS rules are used to resize the image
+                    //
+                    largeImage.src = imageURI;                   
+                    if(sessionStorage.isprofileimage===1){
+                        getLocation();
+                    }
+                    movePic(imageURI);
+                }
+
+
+            // A button will call this function
+            //
+                function capturePhoto() {
+                    //sessionStorage.removeItem('imagepath');
+                // Take picture using device camera and retrieve image as base64-encoded string
+                    navigator.camera.getPicture(onPhotoURISuccess,onFail, { quality: 50,
+                        destinationType :  Camera.DestinationType.FILE_URI,
+                        saveToPhotoAlbum : true
+                    });
+                    
+                    
+                }
+
+                 // Called when a photo is successfully retrieved
+                //
+                function onPhotoDataSuccess(imageData) {
+                  // Uncomment to view the base64 encoded image data
+                  // console.log(imageData);
+
+                  // Get image handle
+                  //
+                  var smallImage = document.getElementById('smallImage');
+
+                  // Unhide image elements
+                  //
+                  smallImage.style.display = 'block';
+
+                  // Show the captured photo
+                  // The inline CSS rules are used to resize the image
+                  //
+                  smallImage.src = "data:image/jpeg;base64," + imageData;
+                }
+
+                function movePic(file){ 
+                    window.resolveLocalFileSystemURI(file, resolveOnSuccess, resOnError); 
+                    
+                } 
+
+                //Callback function when the file system uri has been resolved
+                function resolveOnSuccess(entry){ 
+                var d = new Date();
+                var n = d.getTime();
+                //new file name
+                var newFileName = n + ".jpg";
+                var myFolderApp = "ozEge";
+
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {      
+                //The folder is created if doesn't exist
+                fileSys.root.getDirectory( myFolderApp,
+                                {create:true, exclusive: false},
+                                function(directory) {
+                                    entry.moveTo(directory, newFileName,  successMove, resOnError);
+                                },
+                                resOnError);
+                                },
+                resOnError);
+                }
+
+                //Callback function when the file has been moved successfully - inserting the complete  path
+                function successMove(entry) {
+                //Store imagepath in session for future use
+                // like to store it in database
+                    sessionStorage.setItem('imagepath', entry.fullPath);
+                }
+
+                function resOnError(error) {
+                    alert(error.code);
+                } 
+
+                // A button will call this function
+                //
+                 function capturePhotoEdit() {
+                    // Take picture using device camera, allow edit, and retrieve image as base64-encoded string  
+                    navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,
+                        destinationType :  destinationType.DATA_URL
+                        //allowEdit: true
+                         }); 
+                  }
+
+              
+               // A button will call this function
+                //
+                function getPhoto(source) {
+                  // Retrieve image file location from specified source
+                  navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
+                    destinationType: destinationType.FILE_URI,
+                    sourceType: source });
+                }              
+
+                // Called if something bad happens.
+                // 
+                function onFail(message) {
+                  alert('Failed because: ' + message);
+                }
+
+    </script>
+    
+    </head>
+    <body>
+        
+        <div data-dom-cache="false" data-role="page" id="main">
+            
+            <div data-role="header" data-theme="b" >
+                
+                <img src="img/logo.png" alt="özege logosu" style="height: 50px;width: 50px; margin: 0;padding: 0;">
+                <h3 style="font-family:  fantasy; font-size: 15px; color: crimson; width: auto;"> ÖZ EGE EKİCİ TAKİP SİSTEMİ</h3>               
+                
+            </div>
+            
+            <div data-role="content">
+                <div id="map" style="width:auto;height:400px; z-index:50">
+                    <script>
+                        map();
+                                            </script>
+                </div>
+                
+                <button onclick="capturePhoto();">Capture Photo</button> <br>
+                <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
+                <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
+                <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
+                <img style="display:block;width:60px;height:60px;" id="smallImage" src="" />
+                <img style="display:block;" id="largeImage" src="" />
+            </div>
+            
+            
+        </div>
+        
+        
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/geolocation.js"></script>
+    </body>
+</html>

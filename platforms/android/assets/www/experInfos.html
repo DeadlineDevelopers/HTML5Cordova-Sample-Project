@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Login</title>
+        <meta charset="utf-8" />              
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        
+        <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
+        <link rel="stylesheet" type="text/css" href="css/dotstyle.css" media="all" />
+               
+        <script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+
+        <link rel="stylesheet" href="js/libs/jquery-mobile/jquery.mobile.min.css"/>
+        <script type="text/javascript" src="js/libs/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-mobile/jquery.mobile.min.js"></script>
+        
+        <script type="text/javascript" charset="utf-8">
+            var menseiId;
+            var bolgeId;
+            var mintikaId;
+            var alimNoktasiId;
+            var koyId;
+            var ekiciId;
+           
+            
+            document.addEventListener("deviceready",onDeviceReady,false);
+            function onDeviceReady() {
+                                      
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    populateMensei(db);
+            }              
+              
+            function populateMensei(db){
+                   db.transaction(function(tx)
+                    {
+                        tx.executeSql("SELECT ID,ADI FROM TBL_C_MENSEI WHERE ID IN(SELECT MENSEI_ID FROM TBL_J_USER_ROLE_ALIM_NOKTASI where USER_ID=6);", [], function(tx, res)  // kullanıcı ıd ye göre gelcek
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    // menseiId = res.rows.item(i).ID;
+                                    //alert(menseiId);
+                                    var list = document.getElementById('select-mensei');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).ADI;
+                                    option.value = res.rows.item(i).ID;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+                
+
+            }
+            
+            function fillBolge(){     
+                
+                 var selectbox = document.getElementById("select-bolge");
+                 
+                 for(var i=selectbox.options.length-1;i>=0;i--)
+                    {
+                        selectbox.remove(i);
+                    }
+                   
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    var e = document.getElementById("select-mensei");
+                    menseiId = e.options[e.selectedIndex].value;
+                    alert(menseiId);                
+                    db.transaction(function(tx)
+                    {
+                        alert("iç");
+                        tx.executeSql("SELECT ID,ADI FROM TBL_C_BOLGE WHERE ID IN(SELECT BOLGE_ID FROM TBL_J_USER_ROLE_ALIM_NOKTASI WHERE MENSEI_ID="+menseiId+" AND USER_ID=6);", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    //alert(res.rows.item(i).ADI);
+                                    var list = document.getElementById('select-bolge');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).ADI;
+                                    option.value = res.rows.item(i).ID;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+            }
+            
+            function fillMintika(){
+                
+                var selectbox = document.getElementById("select-mintika");
+                 
+                 for(var i=selectbox.options.length-1;i>=0;i--)
+                    {
+                        selectbox.remove(i);
+                    }
+                   
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    var e = document.getElementById("select-bolge");
+                    bolgeId = e.options[e.selectedIndex].value;
+                    alert(bolgeId);                
+                    db.transaction(function(tx)
+                    {
+                        alert("mıntıka");
+                        tx.executeSql("SELECT ID,ADI FROM TBL_C_MINTIKA WHERE ID IN(SELECT MINTIKA_ID FROM TBL_J_USER_ROLE_ALIM_NOKTASI WHERE USER_ID=6 AND MENSEI_ID="+menseiId+" AND BOLGE_ID="+bolgeId+");", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    //alert(res.rows.item(i).ADI);
+                                    var list = document.getElementById('select-mintika');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).ADI;
+                                    option.value = res.rows.item(i).ID;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+            }
+            
+            function fillAlimNoktasi(){
+                
+                var selectbox = document.getElementById("select-alim-noktasi");
+                 
+                 for(var i=selectbox.options.length-1;i>=0;i--)
+                    {
+                        selectbox.remove(i);
+                    }
+                   
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    var e = document.getElementById("select-mintika");
+                    mintikaId = e.options[e.selectedIndex].value;
+                    alert(mintikaId);                
+                    db.transaction(function(tx)
+                    {
+                        alert("alim noktasi");
+                        tx.executeSql("SELECT ID,ADI FROM TBL_C_ALIM_NOKTASI WHERE ID IN(SELECT ALIM_NOKTASI_ID FROM TBL_J_USER_ROLE_ALIM_NOKTASI WHERE USER_ID=6 AND MENSEI_ID="+menseiId+" AND BOLGE_ID="+bolgeId+" AND MINTIKA_ID="+mintikaId+");", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    //alert(res.rows.item(i).ADI);
+                                    var list = document.getElementById('select-alim-noktasi');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).ADI;
+                                    option.value = res.rows.item(i).ID;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+            }
+            
+            function fillKoy(){
+                
+                var selectbox = document.getElementById("select-koy");
+                 
+                 for(var i=selectbox.options.length-1;i>=0;i--)
+                    {
+                        selectbox.remove(i);
+                    }
+                   
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    var e = document.getElementById("select-alim-noktasi");
+                    alimNoktasiId = e.options[e.selectedIndex].value;
+                    alert(alimNoktasiId);                
+                    db.transaction(function(tx)
+                    {
+                        alert("koy");
+                        tx.executeSql("SELECT ID,ADI FROM TBL_C_KOY WHERE ALIM_NOKTASI_ID ="+alimNoktasiId+";", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    //alert(res.rows.item(i).ADI);
+                                    var list = document.getElementById('select-koy');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).ADI;
+                                    option.value = res.rows.item(i).ID;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+            }
+            
+            function fillEkici(){
+                
+                var selectbox = document.getElementById("select-ekici");
+                 
+                 for(var i=selectbox.options.length-1;i>=0;i--)
+                    {
+                        selectbox.remove(i);
+                    }
+                   
+                    var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                    
+                    var e = document.getElementById("select-koy");
+                    koyId = e.options[e.selectedIndex].value;
+                    alert(koyId);                
+                    db.transaction(function(tx)
+                    {
+                        alert("koy");
+                        tx.executeSql("SELECT OZ_KONT_NO,AD,SOYAD FROM TBL_C_EKICI WHERE KOY_ID="+koyId+" ;", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                               for(var i=0;i<res.rows.length;i++)
+                               {    
+                                    //alert(res.rows.item(i).ADI);
+                                    var list = document.getElementById('select-ekici');
+                                    var option = document.createElement('option');
+                                    option.text = res.rows.item(i).AD+" "+res.rows.item(i).SOYAD;
+                                    option.value = res.rows.item(i).OZ_KONT_NO;
+                                    list.appendChild(option);
+                               }
+                            }
+                            else
+                            {
+                                alert("kayıt gelmedi");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+            }
+          
+            
+        </script>
+    </head>
+    <body>
+        <div class="wrap">
+            <header id="hdr">
+              <div class="logo">
+                  <a href="indexdot.html">
+                      <img src="images/icon.png" alt="ÖZ-EGE LOGOSU"/>
+                      <span class="title"><span>ÖZ</span>-EGE</span>
+                  </a>
+                  <P>ÖZ-EGE TÜTÜN SANAYİ VE TİCARET A.Ş.</P>
+              </div>
+          </header>
+        
+            
+            <div class="content" id="cntn" >
+              
+              
+              <article>
+                  <section class="head">
+                      <h3>Ekici Takip Sistemi</h3>
+                  </section><br>
+                  
+                  <section>
+                      <form name="experInfo" id="experInfoForm" class="label-top" onsubmit="" style="padding: 0px 15px 0px 15px;">
+				    
+                                    <div>
+				    	<h4 class="underline">Mensei seç</h4>
+                                        <select name="select-mensei" id="select-mensei" onchange="fillBolge();">
+						
+                                            </select>
+                                    </div><BR>
+				    
+                                    <div>
+			    		<h4 class="underline">Bölge seç</h4>				        
+                                        <select name="select-bolge" id="select-bolge" onchange="fillMintika();">
+						
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Mıntıka seç</h4>				        
+                                        <select name="select-mintika" id="select-mintika" onchange="fillAlimNoktasi();">
+						
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Alım noktası seç</h4>				        
+                                        <select name="select-alim-noktasi" id="select-alim-noktasi" onchange="fillKoy();">
+						
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Köy seç</h4>				        
+                                        <select name="select-koy" id="select-koy" onchange="fillEkici();">
+						
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Ekici seç</h4>				        
+                                        <select name="select-ekici" id="select-ekici" onchange="enableButon();">
+						
+                                         </select>
+				    </div>
+                                    
+                          
+                                    <div style="text-align: center ">
+                                        <div id="girisbutonu" style="display: inline-block" > 
+                                                  <script>
+                                                       $('#girisbutonu').css({
+                                                              'width': ($('#cntn').width()/2) + 'px'
+                                                          });
+                                                  </script>
+                                                  <input type="submit" value="Devam" >
+                                        </div>
+                                    </div>
+			</form>
+                      
+				   
+                      
+                      
+                  </section>
+                  
+              </article>
+                
+          </div>
+          
+          <footer> 
+            <p>- Copyright 2014</p>
+            <p>- Design by <a href="http://www.aurabilisim.com.tr">Aura Bilişim</a></p>
+          </footer>
+        
+        </div>
+        
+        
+    </body>
+</html>

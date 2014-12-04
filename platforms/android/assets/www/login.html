@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Login</title>
+        <meta charset="utf-8" />              
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        
+        <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
+        <link rel="stylesheet" type="text/css" href="css/dotstyle.css" media="all" />
+               
+        <script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/SQLitePlugin.js"></script>
+        <link rel="stylesheet" href="js/libs/jquery-mobile/jquery.mobile.min.css"/>
+        <script type="text/javascript" src="js/libs/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-mobile/jquery.mobile.min.js"></script>
+        
+        <script type="text/javascript" charset="utf-8">
+            // Wait for PhoneGap to connect with the device
+            Document.addEventListener("deviceready",onDeviceReady,false);
+            
+            function onDeviceReady() {
+
+                var db = window.sqlitePlugin.openDatabase({
+                    name : "OZEGE",
+                    bgType : 1 
+                });
+
+                db.transaction(function(tx)
+                {
+
+                    //tx.executeSql('DROP TABLE IF EXISTS TBL_C_EKICI_TAKIP_BILGISI');
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS TBL_C_EKICI_TAKIP_BILGISI (id INTEGER PRIMARY KEY,EKSPER_ID integer,EKICI_ID text,DONEM_ID integer,KONUM_X text, KONUM_Y text,ACIKLAMA text)');          
+
+                    //tx.executeSql('DROP TABLE IF EXISTS TBL_C_RESIM');
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS TBL_C_RESIM (id INTEGER PRIMARY KEY,RESIM blob,GONDERI_ID integer,FOREIGN KEY(GONDERI_ID) REFERENCES TBL_C_EKICI_TAKIP_BILGISI(id))');
+
+                });
+    
+            }   
+        
+        
+            function Login(){
+                console.log("asdasd");
+                var username = document.getElementById("name").value;
+                var password = document.getElementById("password").value;
+                alert(username);
+                alert(password);
+                
+                  var db = window.sqlitePlugin.openDatabase({
+                        name : "OZEGE",
+                        bgType : 1 
+                    });
+                                                                               
+                    db.transaction(function(tx)
+                    {
+                        tx.executeSql("SELECT ID FROM TBL_C_USER WHERE USER_NAME='"+username+"' AND PASSWORD="+password+" AND ADMIN=0 AND AKTIF=1", [], function(tx, res) 
+                        {   
+                            alert(res.rows.length);
+                            if(res.rows.length>0)
+                            {
+                                alert("giriş başarılı");
+                                window.location = "indexdot.html";
+                            }
+                            else
+                            {
+                                alert("Başarısız! Kullanıcı adı ya da şifre hatalı.");
+                            }
+                        }, function(e) {
+                            console.log("HATA: " + e.message);
+                            });
+                });
+                
+                
+                
+            }
+            
+        </script>
+        
+        
+    </head>
+    <body>
+        <div class="wrap">
+            <header id="hdr">
+              <div class="logo">
+                  <a href="indexdot.html">
+                      <img src="images/icon.png" alt="ÖZ-EGE LOGOSU"/>
+                      <span class="title"><span>ÖZ</span>-EGE</span>
+                  </a>
+                  <P>ÖZ-EGE TÜTÜN SANAYİ VE TİCARET A.Ş.</P>
+              </div>
+          </header>
+        
+            
+            <div class="content" id="cntn" >
+              
+              
+              <article>
+                  <section class="head">
+                      <h3>Ekici Takip Sistemi</h3>
+                  </section><br>
+                  
+                  <section >
+                      <form name="login" id="loginForm" class="label-top" onsubmit="Login();" style="padding: 0px 15px 0px 15px;">
+				    <div>
+				    	<h4 class="underline">Kullanıcı Adı</h4>
+				        <input type="text" name="name" id="name" value="" tabindex="1" />
+                                    </div><BR>
+				    
+                                    <div>
+			    		<h4 class="underline">Şifre</h4>				        
+				         <input type="password" name="password" id="password" value="" tabindex="2" />
+				    </div>
+                                    
+                          
+                                    <div style="text-align: center ">
+                                        <div id="girisbutonu" style="display: inline-block" > 
+                                                  <script>
+                                                       $('#girisbutonu').css({
+                                                              'width': ($('#cntn').width()/2) + 'px'
+                                                          });
+                                                  </script>
+                                                  <input type="submit" value="Giriş" >
+                                        </div>
+                                    </div>
+			</form>
+                      
+				   
+                      
+                      
+                  </section>
+                  
+              </article>
+                
+          </div>
+          
+          <footer> 
+            <p>- Copyright 2014</p>
+            <p>- Design by <a href="http://www.aurabilisim.com.tr">Aura Bilişim</a></p>
+          </footer>
+        
+        </div>
+      
+    </body>
+</html>

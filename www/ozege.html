@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Öz-Ege Planter Tracker</title>
+        <meta charset="utf-8" />              
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        
+
+        <link rel="stylesheet" type="text/css" href="css/ozege.css" media="all" />
+               
+        <!--script type="text/javascript" charset="utf-8" src="cordova.js"></script-->
+        <script type="text/javascript" charset="utf-8" src="cordova-2.5.0.js"></script>
+        <!--script type="text/javascript" charset="utf-8" src="js/SQLitePlugin.js"></script-->
+        
+        <link rel="stylesheet" href="js/libs/jquery-mobile/jquery.mobile.min.css"/>
+        <script type="text/javascript" src="js/libs/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/libs/jquery-mobile/jquery.mobile.min.js"></script>
+        
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            
+        </script>      
+    </head> 
+    
+    <body onload="adjustments();">
+        <div class="wrap">
+            <header id="hdr">
+              <div class="logo">
+                  
+                      <img src="images/icon.png" alt="ÖZ-EGE LOGOSU"/>
+                      <span class="title"><span>ÖZ</span>-EGE</span>
+                  
+                  <P>ÖZ-EGE TÜTÜN SANAYİ VE TİCARET A.Ş.</P>
+              </div>
+          </header>
+        
+            
+            <div class="content">
+              
+              
+              <article>
+                  <section class="head">
+                      <h3>Ekici Takip Sistemi</h3>
+                  </section><br>
+                  
+                  <section>
+                      <div id="loginSec">
+                          <form name="login" id="loginForm" class="label-top" style="padding: 0px 20px 0px 20px;">
+				    <div>
+				    	<h4 class="underline">Kullanıcı Adı</h4>
+				        <input type="text" name="name" id="name" value="" tabindex="1" />
+                                    </div><BR>
+				    
+                                    <div>
+			    		<h4 class="underline">Şifre</h4>				        
+				         <input type="password" name="password" id="password" value="" tabindex="2" />
+				    </div>
+                                    
+                          
+                                    <div style="text-align: center ">
+                                        <div id="loginBtn" style="display: inline-block" > 
+                                                 
+                                            <input type="button" value="Giriş" onclick="Login('experSec','loginSec');" > <!--Login('experSec','loginSec');-->
+                                        </div>
+                                    </div>
+			</form>
+                      
+                      </div>
+                      
+                      <div id="experSec" style="display: none;">
+                          <form name="experInfo" id="experInfoForm" class="label-top" onsubmit="" style="padding: 0px 15px 0px 15px;">
+				    
+                                    <div>
+				    	<h4 class="underline">Mensei</h4>
+                                        <select name="select-mensei" id="select-mensei" onchange="fillBolge();">
+                                            <option disabled>Menşei seçin</option>
+                                            </select>
+                                    </div><BR>
+				    
+                                    <div>
+			    		<h4 class="underline">Bölge</h4>				        
+                                        <select name="select-bolge" id="select-bolge" onchange="fillMintika();">
+						<option disabled>Bölge seçin</option>
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Mıntıka</h4>				        
+                                        <select name="select-mintika" id="select-mintika" onchange="fillAlimNoktasi();">
+						<option disabled>Mıntıka seçin</option>
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Alım noktası</h4>				        
+                                        <select name="select-alim-noktasi" id="select-alim-noktasi" onchange="fillKoy();">
+						<option disabled>Alım noktası seçin</option>
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Köy</h4>				        
+                                        <select name="select-koy" id="select-koy" onchange="fillEkici();">
+						<option disabled>Köy seçin</option>
+                                         </select>
+				    </div>
+                                    
+                                    <div>
+			    		<h4 class="underline">Ekici</h4>				        
+                                        <select name="select-ekici" id="select-ekici" onchange="enableButon();">
+						<option disabled>Ekici seçin</option>
+                                         </select>
+				    </div>
+                                    
+                          
+                                    <div style="text-align: center;">
+                                        <div id="selectionBtn" style="display: inline-block;" > 
+                                                 
+                                                  <input type="button" value="Devam" id="devamButonu" onclick="getMainPage();">
+                                        </div>
+                                    </div>
+			</form>
+                      </div>
+                      
+                      <div id="mainPageSec" style="display: none;">
+                          <div data-role="content" id="mapbuton">
+                            
+                            <h2 class="underline">Konum bilgisi</h2>                           
+                            <div id="map" class="mapCss" >
+                                <script>map();</script>
+                            </div><br><br>
+                     
+                            <button onclick="saveInfos();">Kaydet</button>
+                            
+                            <h2 class="underline">Fotoğraf Ekle</h2>    
+                            <div id="buttonlar" style="text-align: center;">
+                                
+                                <div id="photoBtn" style="display: inline-block;">
+                                    
+                                     <button onclick="capturePhoto();">Fotoğraf Çek</button>
+                                    <!--button onclick="capturePhotoEdit();">Capture Editable Photo</button-->
+                                    <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">Albümden Seç</button>
+                                    <!--button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Album</button--><br>
+                                </div>
+                            </div>
+                            
+                            
+                            <div id="myList" style="display:inline-block;width: 100%;" > 
+                                
+                            </div>
+                            
+                            <!--img style="display:none;width:150px;height:150px;" id="imgProfile" src="" />
+                            <img style="display:none;width:300px;height:300px;" id="largeImage" src="" /-->
+                            <br>
+                            <h2 class="underline">Açıklama</h2>
+                            <div>
+                                
+                                <textarea cols="40" rows="40" name="textarea" id="textarea"></textarea>
+                             </div>
+                
+                            <div id="kaydetyarisi" style="text-align: center; padding-bottom: 0;">
+                                <div id="saveBtn" style="display: inline-block">
+                                    
+                                     <button onclick="saveInfos();">Kaydet</button>
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+                      </div>
+                                            
+                  </section>
+                  
+                  
+                  
+              </article>
+                
+          </div>
+          
+          <footer> 
+            <p>- Copyright 2014</p>
+            <p>- Design by <a href="http://www.aurabilisim.com.tr">Aura Bilişim</a></p>
+          </footer>
+        
+        </div>
+        <script type="text/javascript" src="js/ozege.js"></script>
+        <script type="text/javascript" src="js/geolocation.js"></script>
+        <script type="text/javascript" src="js/json2.js"></script>
+    </body>
+</html>
